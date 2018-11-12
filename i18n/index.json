@@ -1,9 +1,0 @@
-{
-  "h5-template/page-common": {
-    "title": "布局组件demo"
-  },
-  "h5-template/widget-1": {
-    "id": "颗粒ID",
-    "name": "颗粒名称"
-  }
-}
