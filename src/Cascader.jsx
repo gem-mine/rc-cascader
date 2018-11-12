@@ -112,6 +112,8 @@ class Cascader extends React.Component {
       menus = (
         <Menus
           {...this.props}
+          popupVisible={this.state.popupVisible}
+          setPopupVisible={this.setPopupVisible}
           value={this.state.value}
           activeValue={this.state.activeValue}
           onSelect={this.handleSelect}

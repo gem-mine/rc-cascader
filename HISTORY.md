@@ -2,6 +2,10 @@
 
 ---
 
+## 1.0.0 / 2018-11-12
+
+- 添加noData参数
+
 ## 0.10.0 / 2016-08-20
 
 - Add `dropdownMenuColumnStyle`

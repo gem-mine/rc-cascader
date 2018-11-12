@@ -7,6 +7,20 @@ class Menus extends React.Component {
     this.scrollActiveItemToView();
   }
 
+  componentWillReceiveProps() {
+    if (!this.activeOptions) {
+      return;
+    }
+    const targetOption = this.activeOptions[this.activeOptions.length - 1];
+    // 如果这时候返回结果，这个节点没有children，那么这个设置为叶子节点
+    if (targetOption.children && targetOption.children.length === 0 && this.props.noData === null) {
+      targetOption.isLeaf = true;
+      if (this.props.popupVisible) {
+        this.props.setPopupVisible(false);
+      }
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (!prevProps.visible && this.props.visible) {
       this.scrollActiveItemToView();
@@ -26,6 +40,8 @@ class Menus extends React.Component {
         this.props.onChange(activeOptions, { visible: true });
       }
       this.props.onSelect({ activeValue });
+      // 获取当前选中的activeOptions引用
+      this.activeOptions = activeOptions;
       this.props.loadData(activeOptions);
       return;
     }
@@ -134,14 +150,32 @@ class Menus extends React.Component {
   }
 
   render() {
-    const { prefixCls, dropdownMenuColumnStyle } = this.props;
+    const { prefixCls, dropdownMenuColumnStyle, noData } = this.props;
+
+    const getLiItem = (options, menuIndex) => {
+      if (Array.isArray(options) && options.length === 0) {
+        return (
+          <li
+            className={`${prefixCls}-menu-item ${prefixCls}-menu-no-data`}
+          >
+            {noData === undefined ? '' : noData}
+          </li>
+        );
+      }
+      return options.map(option => this.getOption(option, menuIndex));
+    };
     return (
       <div>
-        {this.getShowOptions().map((options, menuIndex) =>
-          <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
-            {options.map(option => this.getOption(option, menuIndex))}
-          </ul>
-        )}
+        {this.getShowOptions().map((options, menuIndex) => {
+          // noData === null 并且 children为空数组的时候，不显示叶节点数据
+          return noData === null && Array.isArray(options) && options.length === 0
+            ? null
+            : (
+              <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
+                {getLiItem(options, menuIndex)}
+              </ul>
+            );
+        })}
       </div>
     );
   }
@@ -173,6 +207,9 @@ Menus.propTypes = {
   visible: React.PropTypes.bool,
   changeOnSelect: React.PropTypes.bool,
   dropdownMenuColumnStyle: React.PropTypes.object,
+  noData: React.PropTypes.string,
+  popupVisible: React.PropTypes.bool,
+  setPopupVisible: React.PropTypes.func,
 };
 
 export default Menus;

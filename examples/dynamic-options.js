@@ -33,13 +33,18 @@ const Demo = React.createClass({
     // 动态加载下级数据
     setTimeout(() => {
       targetOption.loading = false;
-      targetOption.children = [{
-        label: `${targetOption.label}动态加载1`,
-        value: 'dynamic1',
-      }, {
-        label: `${targetOption.label}动态加载2`,
-        value: 'dynamic2',
-      }];
+
+      if (targetOption.value === 'fj') {
+        targetOption.children = [];
+      } else {
+        targetOption.children = [{
+          label: `${targetOption.label}动态加载1`,
+          value: 'dynamic1',
+        }, {
+          label: `${targetOption.label}动态加载2`,
+          value: 'dynamic2',
+        }];
+      }
       this.setState({
         options: [...this.state.options],
       });
@@ -47,14 +52,17 @@ const Demo = React.createClass({
   },
   render() {
     return (
-      <Cascader
-        options={this.state.options}
-        loadData={this.loadData}
-        onChange={this.onChange}
-        changeOnSelect
-      >
-        <input value={this.state.inputValue} readOnly />
-      </Cascader>
+      <div>
+        <Cascader
+          options={this.state.options}
+          loadData={this.loadData}
+          onChange={this.onChange}
+          changeOnSelect
+          noData={null}
+        >
+          <input value={this.state.inputValue} readOnly />
+        </Cascader>
+      </div>
     );
   },
 });
