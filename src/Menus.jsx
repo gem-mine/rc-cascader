@@ -155,7 +155,7 @@ class Menus extends React.Component {
       if (Array.isArray(options) && options.length === 0) {
         return (
           <li
-            className={`${prefixCls}-menu-item ${prefixCls}-menu-no-data`}
+            className={`${prefixCls}-menu-no-data`}
           >
             {noData === undefined ? '' : noData}
           </li>
