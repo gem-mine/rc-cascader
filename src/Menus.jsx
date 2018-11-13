@@ -14,7 +14,6 @@ class Menus extends React.Component {
     const targetOption = this.activeOptions[this.activeOptions.length - 1];
     // 如果这时候返回结果，这个节点没有children，那么这个设置为叶子节点
     if (targetOption.children && targetOption.children.length === 0 && this.props.noData === null) {
-      targetOption.isLeaf = true;
       if (this.props.popupVisible) {
         this.props.setPopupVisible(false);
       }
