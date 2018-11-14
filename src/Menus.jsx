@@ -7,19 +7,6 @@ class Menus extends React.Component {
     this.scrollActiveItemToView();
   }
 
-  componentWillReceiveProps() {
-    if (!this.activeOptions) {
-      return;
-    }
-    const targetOption = this.activeOptions[this.activeOptions.length - 1];
-    // 如果这时候返回结果，这个节点没有children，那么这个设置为叶子节点
-    if (targetOption.children && targetOption.children.length === 0 && this.props.noData === null) {
-      if (this.props.popupVisible) {
-        this.props.setPopupVisible(false);
-      }
-    }
-  }
-
   componentDidUpdate(prevProps) {
     if (!prevProps.visible && this.props.visible) {
       this.scrollActiveItemToView();
@@ -34,14 +21,29 @@ class Menus extends React.Component {
     activeValue = activeValue.slice(0, menuIndex + 1);
     activeValue[menuIndex] = targetOption.value;
     const activeOptions = this.getActiveOptions(activeValue);
+    // 获取当前选中的activeOptions引用
+    this.activeOptions = activeOptions;
+    if (this.props.onItemClick) {
+      this.props.onItemClick(activeOptions);
+    }
     if (targetOption.isLeaf === false && !targetOption.children && this.props.loadData) {
-      if (this.props.changeOnSelect || this.props.noData === null) {
+      if (this.props.changeOnSelect) {
         this.props.onChange(activeOptions, { visible: true });
       }
       this.props.onSelect({ activeValue });
-      // 获取当前选中的activeOptions引用
-      this.activeOptions = activeOptions;
-      this.props.loadData(activeOptions);
+
+      // 如果当前节点的children是空，而且noData设置为不显示空的枝节点，调用这个触发设置value值隐藏浮层
+      const done = () => {
+        if (
+          this.activeOptions === activeOptions // 必须是最后一次点击的选项的数组对象引用
+          && targetOption.children
+          && targetOption.children.length === 0
+          && this.props.noData === null
+        ) {
+          this.props.onChange(activeOptions, { visible: false });
+        }
+      };
+      this.props.loadData(activeOptions, done);
       return;
     }
     const onSelectArgument = {};
@@ -207,8 +209,7 @@ Menus.propTypes = {
   changeOnSelect: React.PropTypes.bool,
   dropdownMenuColumnStyle: React.PropTypes.object,
   noData: React.PropTypes.string,
-  popupVisible: React.PropTypes.bool,
-  setPopupVisible: React.PropTypes.func,
+  onItemClick: React.PropTypes.func,
 };
 
 export default Menus;
