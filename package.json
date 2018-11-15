@@ -1,5 +1,5 @@
 {
-  "name": "rc-cascader",
+  "name": "@sdp.nd/rc-cascader",
   "version": "1.0.0",
   "description": "cascade select ui component for react",
   "keywords": [
