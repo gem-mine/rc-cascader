@@ -21,12 +21,29 @@ class Menus extends React.Component {
     activeValue = activeValue.slice(0, menuIndex + 1);
     activeValue[menuIndex] = targetOption.value;
     const activeOptions = this.getActiveOptions(activeValue);
+    // 获取当前选中的activeOptions引用
+    this.activeOptions = activeOptions;
+    if (this.props.onItemClick) {
+      this.props.onItemClick(activeOptions);
+    }
     if (targetOption.isLeaf === false && !targetOption.children && this.props.loadData) {
       if (this.props.changeOnSelect) {
         this.props.onChange(activeOptions, { visible: true });
       }
       this.props.onSelect({ activeValue });
-      this.props.loadData(activeOptions);
+
+      // 如果当前节点的children是空，而且noData设置为不显示空的枝节点，调用这个触发设置value值隐藏浮层
+      const done = () => {
+        if (
+          this.activeOptions === activeOptions // 必须是最后一次点击的选项的数组对象引用
+          && targetOption.children
+          && targetOption.children.length === 0
+          && this.props.noData === null
+        ) {
+          this.props.onChange(activeOptions, { visible: false });
+        }
+      };
+      this.props.loadData(activeOptions, done);
       return;
     }
     const onSelectArgument = {};
@@ -134,14 +151,32 @@ class Menus extends React.Component {
   }
 
   render() {
-    const { prefixCls, dropdownMenuColumnStyle } = this.props;
+    const { prefixCls, dropdownMenuColumnStyle, noData } = this.props;
+
+    const getLiItem = (options, menuIndex) => {
+      if (Array.isArray(options) && options.length === 0) {
+        return (
+          <li
+            className={`${prefixCls}-menu-no-data`}
+          >
+            {noData === undefined ? '' : noData}
+          </li>
+        );
+      }
+      return options.map(option => this.getOption(option, menuIndex));
+    };
     return (
       <div>
-        {this.getShowOptions().map((options, menuIndex) =>
-          <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
-            {options.map(option => this.getOption(option, menuIndex))}
-          </ul>
-        )}
+        {this.getShowOptions().map((options, menuIndex) => {
+          // noData === null 并且 children为空数组的时候，不显示叶节点数据
+          return noData === null && Array.isArray(options) && options.length === 0
+            ? null
+            : (
+              <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
+                {getLiItem(options, menuIndex)}
+              </ul>
+            );
+        })}
       </div>
     );
   }
@@ -173,6 +208,8 @@ Menus.propTypes = {
   visible: React.PropTypes.bool,
   changeOnSelect: React.PropTypes.bool,
   dropdownMenuColumnStyle: React.PropTypes.object,
+  noData: React.PropTypes.string,
+  onItemClick: React.PropTypes.func,
 };
 
 export default Menus;

@@ -2,6 +2,11 @@
 
 ---
 
+## 1.0.0 / 2018-11-12
+
+- 添加`onItemClick`事件
+- loadData回调添加done参数
+
 ## 0.10.0 / 2016-08-20
 
 - Add `dropdownMenuColumnStyle`

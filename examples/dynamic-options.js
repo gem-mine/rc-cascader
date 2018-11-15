@@ -27,34 +27,48 @@ const Demo = React.createClass({
       inputValue: selectedOptions.map(o => o.label).join(', '),
     });
   },
-  loadData(selectedOptions) {
+  onItemClick(activeOptions) {
+    console.log(activeOptions);
+  },
+  loadData(selectedOptions, done) {
     const targetOption = selectedOptions[selectedOptions.length - 1];
     targetOption.loading = true;
     // 动态加载下级数据
     setTimeout(() => {
       targetOption.loading = false;
-      targetOption.children = [{
-        label: `${targetOption.label}动态加载1`,
-        value: 'dynamic1',
-      }, {
-        label: `${targetOption.label}动态加载2`,
-        value: 'dynamic2',
-      }];
+
+      if (targetOption.value === 'fj') {
+        targetOption.children = [];
+        targetOption.isLeaf = true;
+      } else {
+        targetOption.children = [{
+          label: `${targetOption.label}动态加载1`,
+          value: 'dynamic1',
+        }, {
+          label: `${targetOption.label}动态加载2`,
+          value: 'dynamic2',
+        }];
+      }
       this.setState({
         options: [...this.state.options],
       });
+      done();
     }, 1000);
   },
   render() {
     return (
-      <Cascader
-        options={this.state.options}
-        loadData={this.loadData}
-        onChange={this.onChange}
-        changeOnSelect
-      >
-        <input value={this.state.inputValue} readOnly />
-      </Cascader>
+      <div>
+        <Cascader
+          options={this.state.options}
+          loadData={this.loadData}
+          onChange={this.onChange}
+          onItemClick={this.onItemClick}
+          // changeOnSelect
+          noData={null}
+        >
+          <input value={this.state.inputValue} readOnly />
+        </Cascader>
+      </div>
     );
   },
 });
