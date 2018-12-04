@@ -172,9 +172,11 @@ class Menus extends React.Component {
           return noData === null && Array.isArray(options) && options.length === 0
             ? null
             : (
-              <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
-                {getLiItem(options, menuIndex)}
-              </ul>
+              <div key={menuIndex} className={`${prefixCls}-menu-wrapper`}>
+                <ul className={`${prefixCls}-menu`} style={dropdownMenuColumnStyle}>
+                  {getLiItem(options, menuIndex)}
+                </ul>
+              </div>
             );
         })}
       </div>
