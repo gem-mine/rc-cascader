@@ -1,6 +1,10 @@
 # History
 
 ---
+## 2.0.0 / 2018-12-07
+
+- [在 IE & Edge 中浮层与数据列宽度不一致](https://github.com/ant-design/ant-design/issues/11857) 不兼容升级
+
 ## 1.0.2 / 2018-12-07
 
 - [在 IE & Edge 中浮层与数据列宽度不一致](https://github.com/ant-design/ant-design/issues/11857) bug 修复是不兼容升级故代码回退到1.0.0版本
