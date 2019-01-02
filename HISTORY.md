@@ -1,22 +1,31 @@
 # History
 
 ---
-## 2.0.0 / 2018-12-07
 
-- [在 IE & Edge 中浮层与数据列宽度不一致](https://github.com/ant-design/ant-design/issues/11857) 不兼容升级
+## 0.16.0 / 2018/08/23
 
-## 1.0.2 / 2018-12-07
+- Add loadingIcon.
 
-- [在 IE & Edge 中浮层与数据列宽度不一致](https://github.com/ant-design/ant-design/issues/11857) bug 修复是不兼容升级故代码回退到1.0.0版本
+## 0.15.0 / 2018/08/10
 
-## 1.0.1 / 2018-12-04
+- Add expandIcon.
 
-- [在 IE & Edge 中浮层与数据列宽度不一致](https://github.com/ant-design/ant-design/issues/11857)
+## 0.14.0 / 2018/07/03
 
-## 1.0.0 / 2018-11-12
+- Fix typo `filedNames` to `fieldNames`. [ant-design/ant-design#10896](https://github.com/ant-design/ant-design/issues/10896)
 
-- 添加`onItemClick`事件
-- loadData回调添加done参数
+## 0.13.0 / 2018/04/27
+
+- Allow to custom the field name of options. [#23](https://github.com/react-component/cascader/pull/23)
+
+## 0.12.0
+
+- Add es build
+- support React 16
+
+## 0.11.0 / 2017-01-17
+
+- Add Keyboard support
 
 ## 0.10.0 / 2016-08-20
 

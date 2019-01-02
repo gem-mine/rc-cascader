@@ -5,39 +5,39 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 const addressOptions = [{
-  label: '福建',
-  value: 'fj',
-  children: [{
-    label: '福州',
-    value: 'fuzhou',
-    children: [{
-      label: '马尾',
-      value: 'mawei',
+  name: '福建',
+  code: 'fj',
+  nodes: [{
+    name: '福州',
+    code: 'fuzhou',
+    nodes: [{
+      name: '马尾',
+      code: 'mawei',
     }],
   }, {
-    label: '泉州',
-    value: 'quanzhou',
+    name: '泉州',
+    code: 'quanzhou',
   }],
 }, {
-  label: '浙江',
-  value: 'zj',
-  children: [{
-    label: '杭州',
-    value: 'hangzhou',
-    children: [{
-      label: '余杭',
-      value: 'yuhang',
+  name: '浙江',
+  code: 'zj',
+  nodes: [{
+    name: '杭州',
+    code: 'hangzhou',
+    nodes: [{
+      name: '余杭',
+      code: 'yuhang',
     }],
   }],
 }, {
-  label: '北京',
-  value: 'bj',
-  children: [{
-    label: '朝阳区',
-    value: 'chaoyang',
+  name: '北京',
+  code: 'bj',
+  nodes: [{
+    name: '朝阳区',
+    code: 'chaoyang',
   }, {
-    label: '海淀区',
-    value: 'haidian',
+    name: '海淀区',
+    code: 'haidian',
     disabled: true,
   }],
 }];
@@ -50,13 +50,17 @@ class Demo extends React.Component {
   onChange = (value, selectedOptions) => {
     console.log(value, selectedOptions);
     this.setState({
-      inputValue: selectedOptions.map(o => o.label).join(', '),
+      inputValue: selectedOptions.map(o => o.name).join(', '),
     });
   }
 
   render() {
     return (
-      <Cascader options={addressOptions} onChange={this.onChange}>
+      <Cascader
+        options={addressOptions}
+        onChange={this.onChange}
+        fieldNames={{ label: 'name', value: 'code', children: 'nodes' }}
+      >
         <input
           placeholder="please select address"
           value={this.state.inputValue}
