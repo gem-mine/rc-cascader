@@ -142,7 +142,7 @@ class Cascader extends Component {
     if (triggerNode && triggerNode.focus) {
       triggerNode.focus();
     }
-    const { changeOnSelect, loadData, expandTrigger } = this.props;
+    const { changeOnSelect, loadData, expandTrigger, noData } = this.props;
     if (!targetOption || targetOption.disabled) {
       return;
     }
@@ -150,12 +150,30 @@ class Cascader extends Component {
     activeValue = activeValue.slice(0, menuIndex + 1);
     activeValue[menuIndex] = targetOption[this.getFieldName('value')];
     const activeOptions = this.getActiveOptions(activeValue);
+    // 获取当前选中的activeOptions引用
+    this.activeOptions = activeOptions;
+    if (this.props.onItemClick) {
+      this.props.onItemClick(activeOptions);
+    }
     if (targetOption.isLeaf === false && !targetOption[this.getFieldName('children')] && loadData) {
       if (changeOnSelect) {
         this.handleChange(activeOptions, { visible: true }, e);
       }
       this.setState({ activeValue });
-      loadData(activeOptions);
+
+      // 如果当前节点的children是空，而且noData设置为不显示空的枝节点，调用这个触发设置value值隐藏浮层
+      const done = () => {
+        if (
+          this.activeOptions === activeOptions // 必须是最后一次点击的选项的数组对象引用
+          && targetOption.children
+          && targetOption.children.length === 0
+          && noData === null
+        ) {
+          this.handleChange(activeOptions, { visible: false }, e);
+        }
+      };
+
+      loadData(activeOptions, done);
       return;
     }
     const newState = {};
@@ -344,6 +362,8 @@ Cascader.propTypes = {
   filedNames: PropTypes.object, // typo but for compatibility
   expandIcon: PropTypes.node,
   loadingIcon: PropTypes.node,
+  onItemClick: PropTypes.func,
+  noData: PropTypes.string,
 };
 
 export default Cascader;
