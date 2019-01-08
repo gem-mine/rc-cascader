@@ -1,6 +1,6 @@
 {
-  "name": "rc-cascader",
-  "version": "0.16.2",
+  "name": "@sdp.nd/rc-cascader",
+  "version": "3.0.0",
   "description": "cascade select ui component for react",
   "keywords": [
     "react",
@@ -11,15 +11,6 @@
     "cascade",
     "cascader"
   ],
-  "homepage": "https://github.com/react-component/cascader",
-  "author": "afc163@gmail.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/react-component/cascader.git"
-  },
-  "bugs": {
-    "url": "https://github.com/react-component/cascader/issues"
-  },
   "files": [
     "lib",
     "es",
@@ -32,7 +23,7 @@
     "port": 8000
   },
   "scripts": {
-    "build": "rc-tools run build",
+    "build": "rc-tools run compile --babel-runtime",
     "compile": "rc-tools run compile --babel-runtime",
     "gh-pages": "rc-tools run gh-pages",
     "start": "rc-tools run server",
