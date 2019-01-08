@@ -169,7 +169,8 @@ class Cascader extends Component {
           && targetOption.children.length === 0
           && noData === null
         ) {
-          this.handleChange(activeOptions, { visible: false }, e);
+          this.props.onChange(activeOptions.map(o => o[this.getFieldName('value')]), activeOptions);
+          this.setPopupVisible(false);
         }
       };
 
