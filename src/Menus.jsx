@@ -1,8 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import arrayTreeFilter from 'array-tree-filter';
 import { findDOMNode } from 'react-dom';
 
 class Menus extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.menuItems = {};
+  }
+
   componentDidMount() {
     this.scrollActiveItemToView();
   }
@@ -12,95 +19,68 @@ class Menus extends React.Component {
       this.scrollActiveItemToView();
     }
   }
-
-  onSelect(targetOption, menuIndex) {
-    if (!targetOption || targetOption.disabled) {
-      return;
-    }
-    let activeValue = this.props.activeValue;
-    activeValue = activeValue.slice(0, menuIndex + 1);
-    activeValue[menuIndex] = targetOption.value;
-    const activeOptions = this.getActiveOptions(activeValue);
-    // 获取当前选中的activeOptions引用
-    this.activeOptions = activeOptions;
-    if (this.props.onItemClick) {
-      this.props.onItemClick(activeOptions);
-    }
-    if (targetOption.isLeaf === false && !targetOption.children && this.props.loadData) {
-      if (this.props.changeOnSelect) {
-        this.props.onChange(activeOptions, { visible: true });
-      }
-      this.props.onSelect({ activeValue });
-
-      // 如果当前节点的children是空，而且noData设置为不显示空的枝节点，调用这个触发设置value值隐藏浮层
-      const done = () => {
-        if (
-          this.activeOptions === activeOptions // 必须是最后一次点击的选项的数组对象引用
-          && targetOption.children
-          && targetOption.children.length === 0
-          && this.props.noData === null
-        ) {
-          this.props.onChange(activeOptions, { visible: false });
-        }
-      };
-      this.props.loadData(activeOptions, done);
-      return;
-    }
-    const onSelectArgument = {};
-    if (!targetOption.children || !targetOption.children.length) {
-      this.props.onChange(activeOptions, { visible: false });
-      // set value to activeValue when select leaf option
-      onSelectArgument.value = activeValue;
-    } else if (this.props.changeOnSelect) {
-      this.props.onChange(activeOptions, { visible: true });
-      // set value to activeValue on every select
-      onSelectArgument.value = activeValue;
-    }
-    onSelectArgument.activeValue = activeValue;
-    this.props.onSelect(onSelectArgument);
+  getFieldName(name) {
+    const { fieldNames, defaultFieldNames } = this.props;
+    // 防止只设置单个属性的名字
+    return fieldNames[name] || defaultFieldNames[name];
   }
-
   getOption(option, menuIndex) {
-    const { prefixCls, expandTrigger } = this.props;
-    const onSelect = this.onSelect.bind(this, option, menuIndex);
+    const { prefixCls, expandTrigger, expandIcon, loadingIcon } = this.props;
+    const onSelect = this.props.onSelect.bind(this, option, menuIndex);
     let expandProps = {
       onClick: onSelect,
     };
     let menuItemCls = `${prefixCls}-menu-item`;
-    const hasChildren = option.children && option.children.length > 0;
+    let expandIconNode = null;
+    const hasChildren = option[this.getFieldName('children')]
+      && option[this.getFieldName('children')].length > 0;
     if (hasChildren || option.isLeaf === false) {
       menuItemCls += ` ${prefixCls}-menu-item-expand`;
+      if (!option.loading) {
+        expandIconNode = (
+          <span className={`${prefixCls}-menu-item-expand-icon`}>
+            {expandIcon}
+          </span>
+        );
+      }
     }
     if (expandTrigger === 'hover' && hasChildren) {
       expandProps = {
         onMouseEnter: this.delayOnSelect.bind(this, onSelect),
         onMouseLeave: this.delayOnSelect.bind(this),
+        onClick: onSelect,
       };
     }
     if (this.isActiveOption(option, menuIndex)) {
       menuItemCls += ` ${prefixCls}-menu-item-active`;
-      expandProps.ref = `activeItem${menuIndex}`;
+      expandProps.ref = this.saveMenuItem(menuIndex);
     }
     if (option.disabled) {
       menuItemCls += ` ${prefixCls}-menu-item-disabled`;
     }
+
+    let loadingIconNode = null;
     if (option.loading) {
       menuItemCls += ` ${prefixCls}-menu-item-loading`;
+      loadingIconNode = loadingIcon || null;
     }
     let title = '';
     if (option.title) {
       title = option.title;
-    } else if (typeof option.label === 'string') {
-      title = option.label;
+    } else if (typeof option[this.getFieldName('label')] === 'string') {
+      title = option[this.getFieldName('label')];
     }
+
     return (
       <li
-        key={option.value}
+        key={option[this.getFieldName('value')]}
         className={menuItemCls}
         title={title}
         {...expandProps}
       >
-        {option.label}
+        {option[this.getFieldName('label')]}
+        {expandIconNode}
+        {loadingIconNode}
       </li>
     );
   }
@@ -108,26 +88,28 @@ class Menus extends React.Component {
   getActiveOptions(values) {
     const activeValue = values || this.props.activeValue;
     const options = this.props.options;
-    return arrayTreeFilter(options, (o, level) => o.value === activeValue[level]);
+    return arrayTreeFilter(options,
+      (o, level) => o[this.getFieldName('value')] === activeValue[level],
+      { childrenKeyName: this.getFieldName('children') });
   }
 
   getShowOptions() {
     const { options } = this.props;
     const result = this.getActiveOptions()
-      .map(activeOption => activeOption.children)
+      .map(activeOption => activeOption[this.getFieldName('children')])
       .filter(activeOption => !!activeOption);
     result.unshift(options);
     return result;
   }
 
-  delayOnSelect(onSelect) {
+  delayOnSelect(onSelect, ...args) {
     if (this.delayTimer) {
       clearTimeout(this.delayTimer);
       this.delayTimer = null;
     }
     if (typeof onSelect === 'function') {
       this.delayTimer = setTimeout(() => {
-        onSelect();
+        onSelect(args);
         this.delayTimer = null;
       }, 150);
     }
@@ -137,7 +119,7 @@ class Menus extends React.Component {
     // scroll into view
     const optionsLength = this.getShowOptions().length;
     for (let i = 0; i < optionsLength; i++) {
-      const itemComponent = this.refs[`activeItem${i}`];
+      const itemComponent = this.menuItems[i];
       if (itemComponent) {
         const target = findDOMNode(itemComponent);
         target.parentNode.scrollTop = target.offsetTop;
@@ -147,7 +129,11 @@ class Menus extends React.Component {
 
   isActiveOption(option, menuIndex) {
     const { activeValue = [] } = this.props;
-    return activeValue[menuIndex] === option.value;
+    return activeValue[menuIndex] === option[this.getFieldName('value')];
+  }
+
+  saveMenuItem = (index) => (node) => {
+    this.menuItems[index] = node;
   }
 
   render() {
@@ -157,7 +143,7 @@ class Menus extends React.Component {
       if (Array.isArray(options) && options.length === 0) {
         return (
           <li
-            className={`${prefixCls}-menu-no-data`}
+            className={`${prefixCls}-menu-item ${prefixCls}-menu-no-data`}
           >
             {noData === undefined ? '' : noData}
           </li>
@@ -188,30 +174,27 @@ Menus.defaultProps = {
   options: [],
   value: [],
   activeValue: [],
-  onChange() {
-  },
-  onSelect() {
-  },
+  onSelect() { },
   prefixCls: 'rc-cascader-menus',
   visible: false,
   expandTrigger: 'click',
-  changeOnSelect: false,
 };
 
 Menus.propTypes = {
-  value: React.PropTypes.array,
-  activeValue: React.PropTypes.array,
-  options: React.PropTypes.array.isRequired,
-  prefixCls: React.PropTypes.string,
-  expandTrigger: React.PropTypes.string,
-  onChange: React.PropTypes.func,
-  onSelect: React.PropTypes.func,
-  loadData: React.PropTypes.func,
-  visible: React.PropTypes.bool,
-  changeOnSelect: React.PropTypes.bool,
-  dropdownMenuColumnStyle: React.PropTypes.object,
-  noData: React.PropTypes.string,
-  onItemClick: React.PropTypes.func,
+  value: PropTypes.array,
+  activeValue: PropTypes.array,
+  options: PropTypes.array.isRequired,
+  prefixCls: PropTypes.string,
+  expandTrigger: PropTypes.string,
+  onSelect: PropTypes.func,
+  visible: PropTypes.bool,
+  dropdownMenuColumnStyle: PropTypes.object,
+  defaultFieldNames: PropTypes.object,
+  fieldNames: PropTypes.object,
+  expandIcon: PropTypes.node,
+  loadingIcon: PropTypes.node,
+  noData: PropTypes.string,
+  onItemDoubleClick: PropTypes.func,
 };
 
 export default Menus;

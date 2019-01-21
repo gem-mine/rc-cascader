@@ -14,29 +14,29 @@ const addressOptions = [{
   value: 'zj',
 }];
 
-const Demo = React.createClass({
-  getInitialState() {
-    return {
-      inputValue: '',
-      options: addressOptions,
-    };
-  },
-  onChange(value, selectedOptions) {
+class Demo extends React.Component {
+  state = {
+    inputValue: '',
+    options: addressOptions,
+  }
+
+  onChange = (value, selectedOptions) => {
     console.log(value, selectedOptions);
     this.setState({
       inputValue: selectedOptions.map(o => o.label).join(', '),
     });
-  },
-  onItemClick(activeOptions) {
+  }
+
+  onItemClick = (activeOptions) => {
     console.log(activeOptions);
-  },
-  loadData(selectedOptions, done) {
+  }
+
+  loadData = (selectedOptions, done) => {
     const targetOption = selectedOptions[selectedOptions.length - 1];
     targetOption.loading = true;
     // 动态加载下级数据
     setTimeout(() => {
       targetOption.loading = false;
-
       if (targetOption.value === 'fj') {
         targetOption.children = [];
         targetOption.isLeaf = true;
@@ -54,23 +54,22 @@ const Demo = React.createClass({
       });
       done();
     }, 1000);
-  },
+  }
+
   render() {
     return (
-      <div>
-        <Cascader
-          options={this.state.options}
-          loadData={this.loadData}
-          onChange={this.onChange}
-          onItemClick={this.onItemClick}
-          // changeOnSelect
-          noData={null}
-        >
-          <input value={this.state.inputValue} readOnly />
-        </Cascader>
-      </div>
+      <Cascader
+        options={this.state.options}
+        loadData={this.loadData}
+        onChange={this.onChange}
+        onItemClick={this.onItemClick}
+        noData={null}
+        changeOnSelect
+      >
+        <input value={this.state.inputValue} readOnly />
+      </Cascader>
     );
-  },
-});
+  }
+}
 
 ReactDOM.render(<Demo />, document.getElementById('__react-content'));
