@@ -1,5 +1,5 @@
-import 'rc-cascader/assets/index.less';
-import Cascader from 'rc-cascader';
+import '@sdp.nd/rc-cascader/assets/index.less';
+import Cascader from '@sdp.nd/rc-cascader';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
