@@ -44,7 +44,7 @@ class Menus extends React.Component {
         );
       }
     }
-    if (expandTrigger === 'hover' && hasChildren) {
+    if (expandTrigger === 'hover' && (hasChildren || option.isLeaf === false)) {
       expandProps = {
         onMouseEnter: this.delayOnSelect.bind(this, onSelect),
         onMouseLeave: this.delayOnSelect.bind(this),
@@ -77,6 +77,8 @@ class Menus extends React.Component {
         className={menuItemCls}
         title={title}
         {...expandProps}
+        role="menuitem"
+        onMouseDown={e => e.preventDefault()}
       >
         {option[this.getFieldName('label')]}
         {expandIconNode}
@@ -196,6 +198,7 @@ Menus.propTypes = {
   expandIcon: PropTypes.node,
   loadingIcon: PropTypes.node,
   noData: PropTypes.string,
+  onItemDoubleClick: PropTypes.func,
   onItemDoubleClick: PropTypes.func,
 };
 
