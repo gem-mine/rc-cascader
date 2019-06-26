@@ -25,6 +25,16 @@ describe('Cascader', () => {
     menus = null;
   });
 
+  [['space', KeyCode.SPACE], ['enter', KeyCode.ENTER]].forEach(([name, keyCode]) => {
+    it(`${name} to open`, () => {
+      wrapper.find('input').simulate('keyDown', { keyCode });
+      expect(wrapper.find('.rc-cascader-menus-hidden').length).toBe(0);
+
+      wrapper.find('input').simulate('keyDown', { keyCode: KeyCode.ESC });
+      expect(wrapper.find('.rc-cascader-menus-hidden').length).toBe(1);
+    });
+  });
+
   it('should have keyboard support', () => {
     wrapper.find('input').simulate('keyDown', { keyCode: KeyCode.DOWN });
     menus = wrapper.find('.rc-cascader-menu');

@@ -15,8 +15,13 @@ describe('Cascader', () => {
     selectedValue = value;
   };
 
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   afterEach(() => {
     selectedValue = null;
+    jest.useRealTimers();
   });
 
   it('should toggle select panel when click it', () => {
@@ -101,8 +106,6 @@ describe('Cascader', () => {
   });
 
   it('should support expand previous item when hover', () => {
-    jest.useFakeTimers();
-
     const wrapper = mount(
       <Cascader expandTrigger="hover" options={addressOptions} onChange={onChange}>
         <input readOnly />
@@ -154,8 +157,6 @@ describe('Cascader', () => {
     menu3Items.at(0).simulate('click');
     expect(wrapper.state().popupVisible).toBeFalsy();
     expect(selectedValue.join(',')).toBe('fj,fuzhou,mawei');
-
-    jest.useRealTimers();
   });
 
   it('should clear active selection when no finish select', () => {
@@ -330,8 +331,6 @@ describe('Cascader', () => {
 
   // https://github.com/ant-design/ant-design/issues/5666
   it('should have not change active value when value is not changed', () => {
-    jest.useFakeTimers();
-
     class Demo extends React.Component {
       state = {
         value: [],
@@ -380,8 +379,6 @@ describe('Cascader', () => {
     wrapper.update();
     menus = wrapper.find('.rc-cascader-menu');
     expect(menus.length).toBe(2);
-
-    jest.useRealTimers();
   });
 
   // https://github.com/ant-design/ant-design/issues/7480
@@ -403,8 +400,6 @@ describe('Cascader', () => {
   });
 
   it('should not call onChange on hover when expandTrigger=hover with changeOnSelect', () => {
-    jest.useFakeTimers();
-
     const wrapper = mount(
       <Cascader changeOnSelect expandTrigger="hover" options={addressOptions} onChange={onChange}>
         <input readOnly />
@@ -421,14 +416,12 @@ describe('Cascader', () => {
     wrapper.update();
     expect(selectedValue).toBeFalsy();
     expect(wrapper.state().popupVisible).toBeTruthy();
-
-    jest.useRealTimers();
   });
 
   it('should has default fieldName when props not exist labelField and valueField and childrenField', () => {
     // eslint-disable-line
     const wrapper = mount(
-      <Cascader>
+      <Cascader options={addressOptions}>
         <input />
       </Cascader>,
     );
@@ -462,7 +455,8 @@ describe('Cascader', () => {
   });
 
   it('should works and show warning message when use typo prop name: filedNames', () => {
-    const spy = jest.spyOn(global.console, 'error');
+    // eslint-disable-next-line
+    console.error = jest.fn();
     const wrapper = mount(
       <Cascader
         filedNames={{ label: 'name', value: 'code', children: 'nodes' }}
@@ -474,12 +468,13 @@ describe('Cascader', () => {
         <input />
       </Cascader>,
     );
-    expect(spy).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
     const activeMenuItems = wrapper.find('.rc-cascader-menu-item-active');
     expect(activeMenuItems.length).toBe(3);
     expect(activeMenuItems.at(0).text()).toBe('福建');
     expect(activeMenuItems.at(1).text()).toBe('福州');
     expect(activeMenuItems.at(2).text()).toBe('马尾');
+    console.error.mockClear();
   });
 
   it('should support custom expand icon(text icon)', () => {
@@ -518,5 +513,53 @@ describe('Cascader', () => {
       .at(0)
       .simulate('doubleClick');
     expect(wrapper.state().popupVisible).toBeFalsy();
+  });
+
+  // https://github.com/ant-design/ant-design/issues/9084
+  it('should trigger loadData when expandTrigger is hover', () => {
+    const options = [
+      {
+        value: 'zhejiang',
+        label: 'Zhejiang',
+        isLeaf: false,
+      },
+      {
+        value: 'jiangsu',
+        label: 'Jiangsu',
+        isLeaf: false,
+      },
+    ];
+    const loadData = jest.fn();
+    const wrapper = mount(
+      <Cascader options={options} loadData={loadData} changeOnSelect expandTrigger="hover">
+        <input readOnly />
+      </Cascader>,
+    );
+    wrapper.find('input').simulate('click');
+    const menus = wrapper.find('.rc-cascader-menu');
+    const menu1Items = menus.at(0).find('.rc-cascader-menu-item');
+    menu1Items.at(0).simulate('mouseEnter');
+    jest.runAllTimers();
+    expect(loadData).toHaveBeenCalled();
+  });
+
+  // https://github.com/ant-design/ant-design/issues/9793
+  it('should not trigger onBlur and onFocus when select item', () => {
+    const onFocus = jest.fn();
+    const onBlur = jest.fn();
+    const wrapper = mount(
+      <Cascader options={addressOptions} onFocus={onFocus} onBlur={onBlur}>
+        <input readOnly />
+      </Cascader>,
+    );
+    wrapper.find('input').simulate('focus');
+    wrapper.find('input').simulate('click');
+    const menus = wrapper.find('.rc-cascader-menu');
+    const menu1Items = menus.at(0).find('.rc-cascader-menu-item');
+    menu1Items.at(0).simulate('mouseDown');
+    menu1Items.at(0).simulate('click');
+    jest.runAllTimers();
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onBlur).toHaveBeenCalledTimes(0);
   });
 });
