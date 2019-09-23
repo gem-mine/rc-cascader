@@ -27,7 +27,7 @@
     "compile": "rc-tools run compile --babel-runtime",
     "gh-pages": "rc-tools run gh-pages",
     "start": "rc-tools run server",
-    "pub": "rc-tools run pub",
+    "pub": "npm run compile && npm publish --access public",
     "lint": "rc-tools run lint",
     "test": "jest",
     "pre-commit": "rc-tools run pre-commit",
