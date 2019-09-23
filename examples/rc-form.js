@@ -1,6 +1,6 @@
 /* eslint-disable no-console, react/no-multi-comp */
-import '@sdp.nd/rc-cascader/assets/index.less';
-import Cascader from '@sdp.nd/rc-cascader';
+import '@gem-mine/rc-cascader/assets/index.less';
+import Cascader from '@gem-mine/rc-cascader';
 import React, { Component } from 'react';
 import { createForm } from 'rc-form';
 import ReactDOM from 'react-dom';
