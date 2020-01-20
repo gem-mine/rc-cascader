@@ -1,4 +1,4 @@
-/* eslint-disable no-console, react/no-multi-comp */
+/* eslint-disable no-console, react/no-multi-comp, react/prop-types */
 import '@gem-mine/rc-cascader/assets/index.less';
 import Cascader from '@gem-mine/rc-cascader';
 import React, { Component } from 'react';
