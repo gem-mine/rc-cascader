@@ -51,6 +51,7 @@ const addressOptions = [
       {
         label: '海淀区',
         value: 'haidian',
+        disabled: true,
       },
     ],
   },
@@ -70,8 +71,18 @@ class Demo extends React.Component {
 
   render() {
     return (
-      <Cascader options={addressOptions} onChange={this.onChange} transitionName="slide-up">
-        <input value={this.state.inputValue} readOnly />
+      <Cascader
+        options={addressOptions}
+        onChange={this.onChange}
+        dropdownRender={menus => (
+          <div>
+            {menus}
+            <hr />
+            Hey, DropdownRender, Long DropdownRender, Long DropdownRender
+          </div>
+        )}
+      >
+        <input placeholder="please select address" value={this.state.inputValue} />
       </Cascader>
     );
   }
