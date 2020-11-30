@@ -20,6 +20,7 @@ interface MenusProps {
     index: number,
     e: React.MouseEvent<HTMLElement>,
   ) => void;
+  noData?: string;
 }
 
 interface MenuItems {
@@ -173,14 +174,31 @@ class Menus extends React.Component<MenusProps> {
   };
 
   render() {
-    const { prefixCls, dropdownMenuColumnStyle } = this.props;
+    const { prefixCls, dropdownMenuColumnStyle, noData } = this.props;
+
+    const getLiItem = (options, menuIndex) => {
+      if (Array.isArray(options) && options.length === 0) {
+        return (
+          <li className={`${prefixCls}-menu-item ${prefixCls}-menu-no-data`}>
+            {noData === undefined ? '' : noData}
+          </li>
+        );
+      }
+      return options.map(option => this.getOption(option, menuIndex));
+    };
     return (
       <div>
-        {this.getShowOptions().map((options, menuIndex) => (
-          <ul className={`${prefixCls}-menu`} key={menuIndex} style={dropdownMenuColumnStyle}>
-            {options.map(option => this.getOption(option, menuIndex))}
-          </ul>
-        ))}
+        {this.getShowOptions().map((options, menuIndex) =>
+          // noData === null 并且 children为空数组的时候，不显示叶节点数据
+          (noData === null && Array.isArray(options) && options.length === 0 ? null : (
+            // Cascader 在IE & Edge 中浮层与数据列宽度不一致(https://github.com/ant-design/ant-design/issues/11857)
+            <div key={menuIndex} className={`${prefixCls}-menu-wrapper`}>
+              <ul className={`${prefixCls}-menu`} style={dropdownMenuColumnStyle}>
+                {getLiItem(options, menuIndex)}
+              </ul>
+            </div>
+          )),
+        )}
       </div>
     );
   }

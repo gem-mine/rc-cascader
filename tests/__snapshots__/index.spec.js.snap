@@ -1,54 +1,58 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Cascader should not show title when title is falsy 1`] = `
-<ul
-  className="rc-cascader-menu"
+<div
+  className="rc-cascader-menu-wrapper"
   key="0"
 >
-  <li
-    className="rc-cascader-menu-item"
-    key="1"
-    onClick={[Function]}
-    onDoubleClick={[Function]}
-    onMouseDown={[Function]}
-    role="menuitem"
-    title=""
+  <ul
+    className="rc-cascader-menu"
   >
-    1
-  </li>
-  <li
-    className="rc-cascader-menu-item"
-    key="2"
-    onClick={[Function]}
-    onDoubleClick={[Function]}
-    onMouseDown={[Function]}
-    role="menuitem"
-  >
-    2
-  </li>
-  <li
-    className="rc-cascader-menu-item"
-    key="3"
-    onClick={[Function]}
-    onDoubleClick={[Function]}
-    onMouseDown={[Function]}
-    role="menuitem"
-    title="3"
-  >
-    3
-  </li>
-  <li
-    className="rc-cascader-menu-item"
-    key="4"
-    onClick={[Function]}
-    onDoubleClick={[Function]}
-    onMouseDown={[Function]}
-    role="menuitem"
-    title="title"
-  >
-    4
-  </li>
-</ul>
+    <li
+      className="rc-cascader-menu-item"
+      key="1"
+      onClick={[Function]}
+      onDoubleClick={[Function]}
+      onMouseDown={[Function]}
+      role="menuitem"
+      title=""
+    >
+      1
+    </li>
+    <li
+      className="rc-cascader-menu-item"
+      key="2"
+      onClick={[Function]}
+      onDoubleClick={[Function]}
+      onMouseDown={[Function]}
+      role="menuitem"
+    >
+      2
+    </li>
+    <li
+      className="rc-cascader-menu-item"
+      key="3"
+      onClick={[Function]}
+      onDoubleClick={[Function]}
+      onMouseDown={[Function]}
+      role="menuitem"
+      title="3"
+    >
+      3
+    </li>
+    <li
+      className="rc-cascader-menu-item"
+      key="4"
+      onClick={[Function]}
+      onDoubleClick={[Function]}
+      onMouseDown={[Function]}
+      role="menuitem"
+      title="title"
+    >
+      4
+    </li>
+  </ul>
+</div>
 `;
 
 exports[`Cascader should render custom dropdown correctly 1`] = `
@@ -214,59 +218,63 @@ exports[`Cascader should render custom dropdown correctly 1`] = `
       visible={true}
     >
       <div>
-        <ul
-          className="rc-cascader-menu"
+        <div
+          className="rc-cascader-menu-wrapper"
           key="0"
         >
-          <li
-            className="rc-cascader-menu-item rc-cascader-menu-item-expand"
-            key="fj"
-            onClick={[Function]}
-            onDoubleClick={[Function]}
-            onMouseDown={[Function]}
-            role="menuitem"
-            title="福建"
+          <ul
+            className="rc-cascader-menu"
           >
-            福建
-            <span
-              className="rc-cascader-menu-item-expand-icon"
+            <li
+              className="rc-cascader-menu-item rc-cascader-menu-item-expand"
+              key="fj"
+              onClick={[Function]}
+              onDoubleClick={[Function]}
+              onMouseDown={[Function]}
+              role="menuitem"
+              title="福建"
             >
-              &gt;
-            </span>
-          </li>
-          <li
-            className="rc-cascader-menu-item rc-cascader-menu-item-expand"
-            key="zj"
-            onClick={[Function]}
-            onDoubleClick={[Function]}
-            onMouseDown={[Function]}
-            role="menuitem"
-            title="浙江"
-          >
-            浙江
-            <span
-              className="rc-cascader-menu-item-expand-icon"
+              福建
+              <span
+                className="rc-cascader-menu-item-expand-icon"
+              >
+                &gt;
+              </span>
+            </li>
+            <li
+              className="rc-cascader-menu-item rc-cascader-menu-item-expand"
+              key="zj"
+              onClick={[Function]}
+              onDoubleClick={[Function]}
+              onMouseDown={[Function]}
+              role="menuitem"
+              title="浙江"
             >
-              &gt;
-            </span>
-          </li>
-          <li
-            className="rc-cascader-menu-item rc-cascader-menu-item-expand"
-            key="bj"
-            onClick={[Function]}
-            onDoubleClick={[Function]}
-            onMouseDown={[Function]}
-            role="menuitem"
-            title="北京"
-          >
-            北京
-            <span
-              className="rc-cascader-menu-item-expand-icon"
+              浙江
+              <span
+                className="rc-cascader-menu-item-expand-icon"
+              >
+                &gt;
+              </span>
+            </li>
+            <li
+              className="rc-cascader-menu-item rc-cascader-menu-item-expand"
+              key="bj"
+              onClick={[Function]}
+              onDoubleClick={[Function]}
+              onMouseDown={[Function]}
+              role="menuitem"
+              title="北京"
             >
-              &gt;
-            </span>
-          </li>
-        </ul>
+              北京
+              <span
+                className="rc-cascader-menu-item-expand-icon"
+              >
+                &gt;
+              </span>
+            </li>
+          </ul>
+        </div>
       </div>
     </Menus>
     <hr />

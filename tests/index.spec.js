@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { mount } from 'enzyme';
+
 import Cascader from '..';
 import {
   addressOptions,
@@ -592,7 +593,7 @@ describe('Cascader', () => {
         <input readOnly />
       </Cascader>,
     );
-    const menus = wrapper.find('.rc-cascader-menu');
+    const menus = wrapper.find('.rc-cascader-menu-wrapper');
     expect(menus).toMatchSnapshot();
   });
 
@@ -618,5 +619,38 @@ describe('Cascader', () => {
     expect(customDropdownContent.length).toBe(1);
     const menus = wrapper.find('.rc-cascader-menus');
     expect(menus).toMatchSnapshot();
+  });
+
+  it('should support noData', () => {
+    const options = [
+      {
+        value: 'zhejiang',
+        label: 'Zhejiang',
+        isLeaf: true,
+        children: [],
+      },
+    ];
+
+    const wrapper = mount(
+      <Cascader options={options} noData="noData">
+        <input readOnly />
+      </Cascader>,
+    );
+
+    wrapper.find('input').simulate('click');
+    let menus = wrapper.find('.rc-cascader-menu');
+    expect(menus.length).toBe(1);
+    const menu1Items = menus.at(0).find('.rc-cascader-menu-item');
+    menu1Items.at(0).simulate('mouseEnter');
+    menu1Items.at(0).simulate('click');
+    menus = wrapper.find('.rc-cascader-menu');
+    expect(menus.length).toBe(2);
+    expect(
+      menus
+        .at(1)
+        .find('.rc-cascader-menu-item')
+        .at(0)
+        .text(),
+    ).toBe('noData');
   });
 });

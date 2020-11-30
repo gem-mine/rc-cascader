@@ -40,7 +40,7 @@ export interface CascaderProps extends Pick<TriggerProps, 'getPopupContainer'> {
   dropdownMenuColumnStyle?: React.CSSProperties;
   dropdownRender?: (menu: React.ReactElement) => React.ReactElement;
   builtinPlacements?: BuildInPlacements;
-  loadData?: (selectOptions: CascaderOption[]) => void;
+  loadData?: (selectOptions: CascaderOption[], done: () => void) => void;
   changeOnSelect?: boolean;
   children?: React.ReactElement;
   onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
@@ -49,6 +49,8 @@ export interface CascaderProps extends Pick<TriggerProps, 'getPopupContainer'> {
   filedNames?: CascaderFieldNames; // typo but for compatibility
   expandIcon?: React.ReactNode;
   loadingIcon?: React.ReactNode;
+  onItemClick: (selectOptions: CascaderOption[]) => void;
+  noData: string;
 }
 
 interface CascaderState {
@@ -204,7 +206,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     if (triggerNode && triggerNode.focus) {
       triggerNode.focus();
     }
-    const { changeOnSelect, loadData, expandTrigger } = this.props;
+    const { changeOnSelect, loadData, expandTrigger, noData, onItemClick, onChange } = this.props;
     if (!targetOption || targetOption.disabled) {
       return;
     }
@@ -212,12 +214,30 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     activeValue = activeValue.slice(0, menuIndex + 1);
     activeValue[menuIndex] = targetOption[this.getFieldName('value')];
     const activeOptions = this.getActiveOptions(activeValue);
+    // 获取当前选中的activeOptions引用
+    this.activeOptions = activeOptions;
+    if (onItemClick) {
+      onItemClick(activeOptions);
+    }
     if (targetOption.isLeaf === false && !targetOption[this.getFieldName('children')] && loadData) {
       if (changeOnSelect) {
         this.handleChange(activeOptions, { visible: true }, e);
       }
       this.setState({ activeValue });
-      loadData(activeOptions);
+      // 如果当前节点的children是空，而且noData设置为不显示空的枝节点，调用这个触发设置value值隐藏浮层
+      const done = () => {
+        if (
+          this.activeOptions === activeOptions && // 必须是最后一次点击的选项的数组对象引用
+          targetOption.children &&
+          targetOption.children.length === 0 &&
+          noData === null
+        ) {
+          onChange(activeOptions.map(o => o[this.getFieldName('value')]), activeOptions);
+          this.setPopupVisible(false);
+        }
+      };
+
+      loadData(activeOptions, done);
       return;
     }
     const newState: CascaderState = {};
