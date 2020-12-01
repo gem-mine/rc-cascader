@@ -49,8 +49,8 @@ export interface CascaderProps extends Pick<TriggerProps, 'getPopupContainer'> {
   filedNames?: CascaderFieldNames; // typo but for compatibility
   expandIcon?: React.ReactNode;
   loadingIcon?: React.ReactNode;
-  onItemClick: (selectOptions: CascaderOption[]) => void;
-  noData: string;
+  onItemClick?: (selectOptions: CascaderOption[]) => void;
+  noData?: string;
 }
 
 interface CascaderState {
@@ -62,6 +62,8 @@ interface CascaderState {
 
 class Cascader extends React.Component<CascaderProps, CascaderState> {
   defaultFieldNames: object;
+
+  activeOptions: CascaderOption[];
 
   trigger: any;
 
