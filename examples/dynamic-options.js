@@ -1,35 +1,37 @@
 /* eslint-disable no-console */
-import '@gem-mine/rc-cascader/assets/index.less';
-import Cascader from '@gem-mine/rc-cascader';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import '../assets/index.less';
+import Cascader from '../src';
 
-const addressOptions = [{
-  label: '福建',
-  isLeaf: false,
-  value: 'fj',
-}, {
-  label: '浙江',
-  isLeaf: false,
-  value: 'zj',
-}];
+const addressOptions = [
+  {
+    label: '福建',
+    isLeaf: false,
+    value: 'fj',
+  },
+  {
+    label: '浙江',
+    isLeaf: false,
+    value: 'zj',
+  },
+];
 
 class Demo extends React.Component {
   state = {
     inputValue: '',
     options: addressOptions,
-  }
+  };
 
   onChange = (value, selectedOptions) => {
     console.log(value, selectedOptions);
     this.setState({
       inputValue: selectedOptions.map(o => o.label).join(', '),
     });
-  }
+  };
 
-  onItemClick = (activeOptions) => {
+  onItemClick = activeOptions => {
     console.log(activeOptions);
-  }
+  };
 
   loadData = (selectedOptions, done) => {
     const targetOption = selectedOptions[selectedOptions.length - 1];
@@ -37,24 +39,23 @@ class Demo extends React.Component {
     // 动态加载下级数据
     setTimeout(() => {
       targetOption.loading = false;
-      if (targetOption.value === 'fj') {
-        targetOption.children = [];
-        targetOption.isLeaf = true;
-      } else {
-        targetOption.children = [{
+      targetOption.children = [
+        {
           label: `${targetOption.label}动态加载1`,
           value: 'dynamic1',
-        }, {
+        },
+        {
           label: `${targetOption.label}动态加载2`,
           value: 'dynamic2',
-        }];
-      }
+        },
+      ];
       this.setState({
+        // eslint-disable-next-line react/no-access-state-in-setstate
         options: [...this.state.options],
       });
       done();
     }, 1000);
-  }
+  };
 
   render() {
     return (
@@ -63,13 +64,12 @@ class Demo extends React.Component {
         loadData={this.loadData}
         onChange={this.onChange}
         onItemClick={this.onItemClick}
-        noData={null}
         changeOnSelect
       >
-        <input value={this.state.inputValue} readOnly />
+        <input value={this.state.inputValue} readOnly placeholder="please select address" />
       </Cascader>
     );
   }
 }
 
-ReactDOM.render(<Demo />, document.getElementById('__react-content'));
+export default Demo;
