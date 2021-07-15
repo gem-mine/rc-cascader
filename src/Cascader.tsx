@@ -1,5 +1,6 @@
 import * as React from 'react';
-import Trigger, { BuildInPlacements, TriggerProps } from 'rc-trigger';
+import type { BuildInPlacements, TriggerProps } from 'rc-trigger';
+import Trigger from 'rc-trigger';
 import warning from 'warning';
 import KeyCode from 'rc-util/lib/KeyCode';
 import arrayTreeFilter from 'array-tree-filter';
@@ -49,6 +50,7 @@ export interface CascaderProps extends Pick<TriggerProps, 'getPopupContainer'> {
   filedNames?: CascaderFieldNames; // typo but for compatibility
   expandIcon?: React.ReactNode;
   loadingIcon?: React.ReactNode;
+  hidePopupOnSelect?: boolean;
   onItemClick?: (selectOptions: CascaderOption[]) => void;
   noData?: string;
 }
@@ -61,7 +63,7 @@ interface CascaderState {
 }
 
 class Cascader extends React.Component<CascaderProps, CascaderState> {
-  defaultFieldNames: object;
+  defaultFieldNames: Record<string, unknown>;
 
   activeOptions: CascaderOption[];
 
@@ -106,6 +108,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     expandTrigger: 'click',
     fieldNames: { label: 'label', value: 'value', children: 'children' },
     expandIcon: '>',
+    hidePopupOnSelect: true,
   };
 
   static getDerivedStateFromProps(nextProps: CascaderProps, prevState: CascaderState) {
@@ -162,7 +165,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     if (result[result.length - 2]) {
       return result[result.length - 2][this.getFieldName('children')];
     }
-    return [...options].filter(o => !o.disabled);
+    return [...options].filter((o) => !o.disabled);
   }
 
   getActiveOptions(activeValue: CascaderValueType): CascaderOption[] {
@@ -189,7 +192,10 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
 
   handleChange = (options: CascaderOption[], { visible }, e: React.KeyboardEvent<HTMLElement>) => {
     if (e.type !== 'keydown' || e.keyCode === KeyCode.ENTER) {
-      this.props.onChange(options.map(o => o[this.getFieldName('value')]), options);
+      this.props.onChange(
+        options.map((o) => o[this.getFieldName('value')]),
+        options,
+      );
       this.setPopupVisible(visible);
     }
   };
@@ -208,7 +214,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     if (triggerNode && triggerNode.focus) {
       triggerNode.focus();
     }
-    const { changeOnSelect, loadData, expandTrigger, noData, onItemClick, onChange } = this.props;
+    const { changeOnSelect, loadData, expandTrigger, hidePopupOnSelect, noData, onItemClick, onChange } = this.props;
     if (!targetOption || targetOption.disabled) {
       return;
     }
@@ -247,13 +253,13 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
       !targetOption[this.getFieldName('children')] ||
       !targetOption[this.getFieldName('children')].length
     ) {
-      this.handleChange(activeOptions, { visible: false }, e);
+      this.handleChange(activeOptions, { visible: !hidePopupOnSelect }, e);
       // set value to activeValue when select leaf option
       newState.value = activeValue;
       // add e.type judgement to prevent `onChange` being triggered by mouseEnter
     } else if (changeOnSelect && (e.type === 'click' || e.type === 'keydown')) {
       if (expandTrigger === 'hover') {
-        this.handleChange(activeOptions, { visible: false }, e);
+        this.handleChange(activeOptions, { visible: !hidePopupOnSelect }, e);
       } else {
         this.handleChange(activeOptions, { visible: true }, e);
       }
@@ -287,7 +293,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     const currentLevel = activeValue.length - 1 < 0 ? 0 : activeValue.length - 1;
     const currentOptions = this.getCurrentLevelOptions();
     const currentIndex = currentOptions
-      .map(o => o[this.getFieldName('value')])
+      .map((o) => o[this.getFieldName('value')])
       .indexOf(activeValue[currentLevel]);
     if (
       e.keyCode !== KeyCode.DOWN &&
@@ -312,6 +318,9 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
       e.keyCode !== KeyCode.TAB
     ) {
       this.setPopupVisible(true);
+      if (this.props.onKeyDown) {
+        this.props.onKeyDown(e);
+      }
       return;
     }
     if (e.keyCode === KeyCode.DOWN || e.keyCode === KeyCode.UP) {
@@ -341,11 +350,14 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
         activeValue.push(
           currentOptions[currentIndex][this.getFieldName('children')][0][
             this.getFieldName('value')
-          ],
+            ],
         );
       }
     } else if (e.keyCode === KeyCode.ESC || e.keyCode === KeyCode.TAB) {
       this.setPopupVisible(false);
+      if (this.props.onKeyDown) {
+        this.props.onKeyDown(e);
+      }
       return;
     }
     if (!activeValue || activeValue.length === 0) {
@@ -360,7 +372,7 @@ class Cascader extends React.Component<CascaderProps, CascaderState> {
     }
   };
 
-  saveTrigger = node => {
+  saveTrigger = (node) => {
     this.trigger = node;
   };
 

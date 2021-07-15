@@ -2,13 +2,27 @@
 
 import React from 'react';
 import { mount } from 'enzyme';
-
 import Cascader from '..';
 import {
   addressOptions,
   optionsForActiveMenuItems,
   addressOptionsForFieldNames,
 } from './demoOptions';
+
+export const createDocumentListenersMock = () => {
+  const listeners = {};
+  const handler = (domEl, event) => listeners?.[event]?.({ target: domEl });
+  document.addEventListener = jest.fn((event, cb) => {
+    listeners[event] = cb;
+  });
+  document.removeEventListener = jest.fn((event) => {
+    delete listeners[event];
+  });
+  return {
+    mouseDown: (domEl) => handler(domEl, 'mousedown'),
+    click: (domEl) => handler(domEl, 'click'),
+  };
+};
 
 describe('Cascader', () => {
   let selectedValue;
@@ -24,6 +38,8 @@ describe('Cascader', () => {
     selectedValue = null;
     jest.useRealTimers();
   });
+
+  const fireEvent = createDocumentListenersMock();
 
   it('should toggle select panel when click it', () => {
     const wrapper = mount(
@@ -52,10 +68,7 @@ describe('Cascader', () => {
     expect(selectedValue).toBeFalsy();
     menu1Items.at(0).simulate('click');
     expect(
-      wrapper
-        .find('.rc-cascader-menu-item')
-        .first()
-        .hasClass('rc-cascader-menu-item-active'),
+      wrapper.find('.rc-cascader-menu-item').first().hasClass('rc-cascader-menu-item-active'),
     ).toBe(true);
     menus = wrapper.find('.rc-cascader-menu');
     expect(menus.length).toBe(2);
@@ -285,6 +298,26 @@ describe('Cascader', () => {
     expect(menus.length).toBe(0);
   });
 
+  it('should not display when children is empty', () => {
+    const wrapper = mount(
+      <Cascader
+        options={[
+          {
+            label: '福建',
+            value: 'fj',
+            children: [],
+          },
+        ]}
+        onChange={onChange}
+      >
+        <input readOnly />
+      </Cascader>,
+    );
+    wrapper.find('input').simulate('click');
+    const menus = wrapper.find('.rc-cascader-menu');
+    expect(menus.length).toBe(1);
+  });
+
   it('should be unselectable when option is disabled', () => {
     const newAddressOptions = [...addressOptions];
     newAddressOptions[0] = {
@@ -305,10 +338,7 @@ describe('Cascader', () => {
 
     menu1Items.at(0).simulate('click');
     expect(
-      wrapper
-        .find('.rc-cascader-menu-item')
-        .first()
-        .hasClass('rc-cascader-menu-item-disabled'),
+      wrapper.find('.rc-cascader-menu-item').first().hasClass('rc-cascader-menu-item-disabled'),
     ).toBe(true);
     menus = wrapper.find('.rc-cascader-menu');
     expect(menus.length).toBe(1);
@@ -358,7 +388,7 @@ describe('Cascader', () => {
           <Cascader
             options={addressOptions}
             value={this.state.value}
-            ref={node => {
+            ref={(node) => {
               this.cascader = node;
             }}
           >
@@ -510,10 +540,7 @@ describe('Cascader', () => {
     expect(wrapper.state().popupVisible).toBeFalsy();
     wrapper.find('input').simulate('click');
     expect(wrapper.state().popupVisible).toBeTruthy();
-    wrapper
-      .find('li')
-      .at(0)
-      .simulate('doubleClick');
+    wrapper.find('li').at(0).simulate('doubleClick');
     expect(wrapper.state().popupVisible).toBeFalsy();
   });
 
@@ -593,7 +620,7 @@ describe('Cascader', () => {
         <input readOnly />
       </Cascader>,
     );
-    const menus = wrapper.find('.rc-cascader-menu-wrapper');
+    const menus = wrapper.find('.rc-cascader-menu');
     expect(menus).toMatchSnapshot();
   });
 
@@ -602,7 +629,7 @@ describe('Cascader', () => {
       <Cascader
         options={addressOptions}
         popupVisible
-        dropdownRender={menus => (
+        dropdownRender={(menus) => (
           <div className="custom-dropdown">
             {menus}
             <hr />
@@ -621,36 +648,52 @@ describe('Cascader', () => {
     expect(menus).toMatchSnapshot();
   });
 
-  it('should support noData', () => {
-    const options = [
-      {
-        value: 'zhejiang',
-        label: 'Zhejiang',
-        isLeaf: true,
-        children: [],
-      },
-    ];
-
+  it('should display after select, when hidePopupOnSelect is false', () => {
     const wrapper = mount(
-      <Cascader options={options} noData="noData">
+      <Cascader options={addressOptions} hidePopupOnSelect={false}>
         <input readOnly />
       </Cascader>,
     );
-
     wrapper.find('input').simulate('click');
     let menus = wrapper.find('.rc-cascader-menu');
     expect(menus.length).toBe(1);
     const menu1Items = menus.at(0).find('.rc-cascader-menu-item');
-    menu1Items.at(0).simulate('mouseEnter');
-    menu1Items.at(0).simulate('click');
+    expect(menu1Items.length).toBe(3);
+    menu1Items.at(2).simulate('click');
+    expect(
+      wrapper.find('.rc-cascader-menu-item').at(2).hasClass('rc-cascader-menu-item-active'),
+    ).toBe(true);
+
     menus = wrapper.find('.rc-cascader-menu');
     expect(menus.length).toBe(2);
+    const menu2Items = menus.at(1).find('.rc-cascader-menu-item');
+    expect(menu2Items.length).toBe(2);
+
+    menu2Items.at(0).simulate('click');
     expect(
-      menus
+      wrapper
+        .find('.rc-cascader-menu')
         .at(1)
         .find('.rc-cascader-menu-item')
-        .at(0)
-        .text(),
-    ).toBe('noData');
+        .first()
+        .hasClass('rc-cascader-menu-item-active'),
+    ).toBe(true);
+
+    expect(wrapper.state().popupVisible).toBeTruthy();
+    fireEvent.mouseDown(document.body);
+    expect(wrapper.state().popupVisible).toBeFalsy();
+  });
+
+  it('should toggle select panel when click it, even if hidePopupOnSelect is false', () => {
+    const wrapper = mount(
+      <Cascader options={addressOptions} onChange={onChange} hidePopupOnSelect={false}>
+        <input readOnly />
+      </Cascader>,
+    );
+    expect(wrapper.state().popupVisible).toBeFalsy();
+    wrapper.find('input').simulate('click');
+    expect(wrapper.state().popupVisible).toBeTruthy();
+    wrapper.find('input').simulate('click');
+    expect(wrapper.state().popupVisible).toBeFalsy();
   });
 });
