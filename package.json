@@ -74,5 +74,8 @@
   "peerDependencies": {
     "react": ">=16.9.0",
     "react-dom": ">=16.9.0"
+  },
+  "resolutions": {
+    "eslint": "^6.8.0"
   }
 }

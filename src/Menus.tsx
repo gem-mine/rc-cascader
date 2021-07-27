@@ -130,10 +130,10 @@ class Menus extends React.Component<MenusProps> {
   }
 
   getShowOptions(): CascaderOption[][] {
-    const { options } = this.props;
+    const { options, noData } = this.props;
     const result = this.getActiveOptions()
       .map((activeOption) => activeOption[this.getFieldName('children')])
-      .filter((activeOption) => !!activeOption && activeOption.length > 0);
+      .filter((activeOption) => !!activeOption && (noData || activeOption.length > 0));
     result.unshift(options);
     return result;
   }
@@ -189,14 +189,14 @@ class Menus extends React.Component<MenusProps> {
       <div>
         {this.getShowOptions().map((options, menuIndex) =>
           // noData === null 并且 children为空数组的时候，不显示叶节点数据
-          (noData === null && Array.isArray(options) && options.length === 0 ? null : (
+          noData === null && Array.isArray(options) && options.length === 0 ? null : (
             // Cascader 在IE & Edge 中浮层与数据列宽度不一致(https://github.com/ant-design/ant-design/issues/11857)
             <div key={menuIndex} className={`${prefixCls}-menu-wrapper`}>
               <ul className={`${prefixCls}-menu`} style={dropdownMenuColumnStyle}>
                 {getLiItem(options, menuIndex)}
               </ul>
             </div>
-          )),
+          ),
         )}
       </div>
     );
