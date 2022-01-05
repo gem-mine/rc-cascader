@@ -86,6 +86,7 @@ export default function Column({
               [`${menuItemPrefixCls}-active`]: openKey === value,
               [`${menuItemPrefixCls}-disabled`]: disabled,
               [`${menuItemPrefixCls}-loading`]: isLoading,
+              [`${menuItemPrefixCls}-no-data`]: value === '__NO_DATA__',
             })}
             style={dropdownMenuColumnStyle}
             role="menuitemcheckbox"

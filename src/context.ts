@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { CascaderProps } from './Cascader';
-import type { ShowSearchType } from './interface';
+import type { ShowSearchType, DataNode } from './interface';
 
 type ContextProps = Required<
   Pick<
@@ -16,6 +16,8 @@ type ContextProps = Required<
 > & {
   search: ShowSearchType;
   dropdownPrefixCls?: string;
+  noData?: string | null;
+  onItemClick?: (selectOptions: DataNode[] | DataNode[][]) => void;
 };
 
 const CascaderContext = React.createContext<ContextProps>({

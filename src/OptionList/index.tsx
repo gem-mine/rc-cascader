@@ -34,13 +34,26 @@ const RefOptionList = React.forwardRef<RefOptionListProps, OptionListProps>((pro
   const rtl = direction === 'rtl';
 
   const { checkedKeys, halfCheckedKeys } = React.useContext(SelectContext);
-  const { changeOnSelect, expandTrigger, fieldNames, loadData, search, dropdownPrefixCls } =
-    React.useContext(CascaderContext);
+  const {
+    changeOnSelect,
+    expandTrigger,
+    fieldNames,
+    loadData,
+    search,
+    dropdownPrefixCls,
+    noData,
+    onItemClick,
+  } = React.useContext(CascaderContext);
 
   const mergedPrefixCls = dropdownPrefixCls || prefixCls;
 
   // ========================= loadData =========================
   const [loadingKeys, setLoadingKeys] = React.useState([]);
+  const [targetOption, setTargetOption] = React.useState(null);
+
+  // ========================== Values ==========================
+  const checkedSet = React.useMemo(() => new Set(checkedKeys), [checkedKeys]);
+  const halfCheckedSet = React.useMemo(() => new Set(halfCheckedKeys), [halfCheckedKeys]);
 
   const internalLoadData = (pathValue: React.Key) => {
     // Do not load when search
@@ -49,13 +62,28 @@ const RefOptionList = React.forwardRef<RefOptionListProps, OptionListProps>((pro
     }
 
     const entity = flattenOptions.find(flattenOption => flattenOption.data.value === pathValue);
-    if (entity && !isLeaf(entity.data.node as any)) {
+
+    if (entity) {
       const { options: optionList } = restoreCompatibleValue(entity as any, fieldNames);
       const rawOptionList = optionList.map(opt => opt.node);
 
-      setLoadingKeys(keys => [...keys, entity.key]);
+      const _targetOption = rawOptionList[rawOptionList.length - 1];
 
-      loadData(rawOptionList);
+      setTargetOption(_targetOption);
+
+      if (!isLeaf(entity.data.node as any)) {
+        setLoadingKeys(keys => [...keys, entity.key]);
+
+        const done = () => {
+          // 如果当前节点的 children 为空数组，而且 noData 设置为不显示空子节点，需要直接隐藏浮层
+          if (noData === null && _targetOption?.children && _targetOption?.children?.length === 0) {
+            onSelect(pathValue, { selected: !checkedSet.has(pathValue) });
+            onToggleOpen(false);
+          }
+        };
+
+        loadData(rawOptionList, done);
+      }
     }
   };
 
@@ -70,10 +98,6 @@ const RefOptionList = React.forwardRef<RefOptionListProps, OptionListProps>((pro
       });
     }
   }, [flattenOptions, loadingKeys]);
-
-  // ========================== Values ==========================
-  const checkedSet = React.useMemo(() => new Set(checkedKeys), [checkedKeys]);
-  const halfCheckedSet = React.useMemo(() => new Set(halfCheckedKeys), [halfCheckedKeys]);
 
   // =========================== Open ===========================
   const [openFinalValue, setOpenFinalValue] = React.useState<React.Key>(null);
@@ -115,6 +139,20 @@ const RefOptionList = React.forwardRef<RefOptionListProps, OptionListProps>((pro
   // =========================== Path ===========================
   const onPathOpen = (index: number, pathValue: React.Key) => {
     setOpenFinalValue(pathValue);
+
+    const entity = flattenOptions.find(flattenOption => flattenOption.data.value === pathValue);
+
+    if (!entity) {
+      return;
+    }
+
+    const { options: optionList } = restoreCompatibleValue(entity as any, fieldNames);
+    const rawOptionList = optionList.map(opt => opt.node);
+
+    // 只针对单选
+    if (!multiple && onItemClick) {
+      onItemClick(rawOptionList);
+    }
 
     // Trigger loadData
     internalLoadData(pathValue);
@@ -164,13 +202,31 @@ const RefOptionList = React.forwardRef<RefOptionListProps, OptionListProps>((pro
     for (let i = 0; i <= mergedOpenPath.length; i += 1) {
       const subOptions = getPathList(mergedOpenPath.slice(0, i));
 
-      if (subOptions) {
-        rawOptionColumns.push({
-          options: subOptions,
-        });
-      } else {
+      /**
+       * fix(2.3.3版本存在的问题)：
+       * 修复当前节点的 children 为空时，选中后再次展开时，依然会渲染下一级面板的问题
+       * */
+      if (!subOptions?.length) {
+        // 显示空节点
+        if (noData && targetOption?.children && targetOption?.children?.length === 0) {
+          const noDataList: OptionDataNode[] = [
+            {
+              title: noData,
+              value: '__NO_DATA__',
+              disabled: true,
+              node: null,
+            },
+          ];
+          rawOptionColumns.push({
+            options: noDataList,
+          });
+        }
         break;
       }
+
+      rawOptionColumns.push({
+        options: subOptions,
+      });
     }
 
     return rawOptionColumns;

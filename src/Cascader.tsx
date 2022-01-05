@@ -114,10 +114,13 @@ interface BaseCascaderProps
   dropdownMenuColumnStyle?: React.CSSProperties;
   /** @private Internal usage. Do not use in your production. */
   dropdownPrefixCls?: string;
-  loadData?: (selectOptions: DataNode[]) => void;
+  loadData?: (selectOptions: DataNode[], done: () => void) => void;
 
   expandIcon?: React.ReactNode;
   loadingIcon?: React.ReactNode;
+
+  onItemClick?: (selectOptions: DataNode[] | DataNode[][]) => void;
+  noData?: string | null;
 }
 
 type OnSingleChange = (value: CascaderValueType, selectOptions: DataNode[]) => void;
@@ -175,6 +178,9 @@ const Cascader = React.forwardRef((props: CascaderProps, ref: React.Ref<Cascader
     loadData,
     dropdownMenuColumnStyle,
     dropdownPrefixCls,
+
+    onItemClick,
+    noData,
 
     ...restProps
   } = props;
@@ -303,6 +309,11 @@ const Cascader = React.forwardRef((props: CascaderProps, ref: React.Ref<Cascader
         (onChange as OnSingleChange)(pathList[0] || [], optionsList[0] || []);
       }
     }
+
+    // 多选时
+    if (onItemClick && checkable) {
+      onItemClick(optionsList);
+    }
   };
 
   // ============================ Open ============================
@@ -345,6 +356,8 @@ const Cascader = React.forwardRef((props: CascaderProps, ref: React.Ref<Cascader
       dropdownMenuColumnStyle,
       search: searchConfig,
       dropdownPrefixCls,
+      noData,
+      onItemClick,
     }),
     [
       changeOnSelect,
@@ -356,6 +369,8 @@ const Cascader = React.forwardRef((props: CascaderProps, ref: React.Ref<Cascader
       dropdownMenuColumnStyle,
       searchConfig,
       dropdownPrefixCls,
+      noData,
+      onItemClick,
     ],
   );
 

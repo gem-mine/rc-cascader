@@ -31,7 +31,7 @@ class Demo extends React.Component {
     });
   };
 
-  onPopupVisibleChange = visible => {
+  onDropdownVisibleChange = visible => {
     if (!visible) {
       // 浮层关闭的时候，取消异步请求
       this.cancelRequest();
@@ -58,6 +58,7 @@ class Demo extends React.Component {
   };
 
   loadData = (selectedOptions, done) => {
+    console.log('onLoad:', selectedOptions);
     const targetOption = selectedOptions[selectedOptions.length - 1];
     this.activeOption = targetOption;
     targetOption.loading = true;
@@ -95,7 +96,7 @@ class Demo extends React.Component {
         options={this.state.options}
         loadData={this.loadData}
         onChange={this.onChange}
-        onPopupVisibleChange={this.onPopupVisibleChange}
+        onDropdownVisibleChange={this.onDropdownVisibleChange}
         onItemClick={this.onItemClick}
         noData="无数据"
       >
