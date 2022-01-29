@@ -23,17 +23,14 @@ class Demo extends React.Component {
   };
 
   onChange = (value, selectedOptions) => {
-    console.log(value, selectedOptions);
+    console.log('OnChange:', value, selectedOptions);
     this.setState({
       inputValue: selectedOptions.map(o => o.label).join(', '),
     });
   };
 
-  onItemClick = activeOptions => {
-    console.log(activeOptions);
-  };
-
-  loadData = (selectedOptions, done) => {
+  loadData = selectedOptions => {
+    console.log('onLoad:', selectedOptions);
     const targetOption = selectedOptions[selectedOptions.length - 1];
     targetOption.loading = true;
     // 动态加载下级数据
@@ -43,6 +40,7 @@ class Demo extends React.Component {
         {
           label: `${targetOption.label}动态加载1`,
           value: 'dynamic1',
+          isLeaf: false,
         },
         {
           label: `${targetOption.label}动态加载2`,
@@ -53,8 +51,7 @@ class Demo extends React.Component {
         // eslint-disable-next-line react/no-access-state-in-setstate
         options: [...this.state.options],
       });
-      done();
-    }, 1000);
+    }, 500);
   };
 
   render() {
@@ -63,10 +60,10 @@ class Demo extends React.Component {
         options={this.state.options}
         loadData={this.loadData}
         onChange={this.onChange}
-        onItemClick={this.onItemClick}
+        loadingIcon="💽"
         changeOnSelect
       >
-        <input value={this.state.inputValue} readOnly placeholder="please select address" />
+        <input value={this.state.inputValue} readOnly />
       </Cascader>
     );
   }
